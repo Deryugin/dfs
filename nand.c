@@ -2,9 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#define DFS_PAGE_SIZE 1024
-#define DFS_BLOCK_SIZE 1024
-#define DFS_BLOCK_COUNT 32
+#define DFS_PAGE_SIZE 512
+#define DFS_BLOCK_SIZE 64
+#define DFS_BLOCK_COUNT 4
 
 #define DFS_SIZE (DFS_BLOCK_SIZE * DFS_BLOCK_COUNT / sizeof(char))
 
@@ -15,8 +15,14 @@ struct dfs_block_stat {
 char raw_flash[DFS_SIZE];
 struct dfs_block_stat bstat[DFS_BLOCK_COUNT];
 
-char *raw_by_block(int bn) { return raw_flash + bn * DFS_BLOCK_SIZE; }
-int block_by_raw(char *rw) { return (rw - raw_flash) / DFS_BLOCK_SIZE; }
+char *raw_by_page(int pg) { return raw_flash + pg * DFS_PAGE_SIZE; }
+int page_by_raw(char *rw) { return (rw - raw_flash) / DFS_PAGE_SIZE; }
+
+int block_by_page(int pg) { return pg / DFS_BLOCK_SIZE; }
+int page_by_block(int bk) { return bk * DFS_BLOCK_SIZE; }
+
+int block_by_raw(char *rw) { return block_by_page(page_by_raw(rw)); }
+int raw_by_block(int bk) { return raw_by_page(page_by_block(bk)); }
 
 /* NAND commands are taken from http://www.eng.umd.edu/~blj/CS-590.26/micron-tn2919.pdf */
 int _read_page();
@@ -61,7 +67,7 @@ int _block_erase(int block_num) {
 		return -1;
 
 	bstat[block_num].erased = 1;
-	memset(raw_by_block(block_num), DFS_BLOCK_SIZE, 1);
+	memset(raw_by_page(block_num * DFS_BLOCK_SIZE), DFS_PAGE_SIZE, 1);
 	return 0;
 }
 
