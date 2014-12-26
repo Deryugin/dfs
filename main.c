@@ -10,5 +10,6 @@ int main() {
 		DFS_PAGE_SIZE, DFS_BLOCK_SIZE, DFS_BLOCK_COUNT, DFS_BLOCK_COUNT * DFS_BLOCK_SIZE * DFS_PAGE_SIZE);
 	dfs_init();
 
+	printf("Bye!\n");
 	return 0;
 }
