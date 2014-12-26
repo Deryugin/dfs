@@ -10,23 +10,6 @@
 char raw_flash[DFS_SIZE];
 struct dfs_block_stat bstat[DFS_BLOCK_COUNT];
 
-/* NAND commands are taken from http://www.eng.umd.edu/~blj/CS-590.26/micron-tn2919.pdf */
-int _read_page();
-int _read_page_cache_sequential();
-int _read_page_cache_sequential_last();
-int _read();
-int _random_data_read();
-int _read_id(void);
-int _read_status(void);
-
-int _program_page(int pg, char *buff);
-int _program_page_cache();
-int _program();
-
-int _random_data_input();
-int _block_erase(int block_num);
-int _reset(void);
-
 /* Code 0xFF. Abort current operation. Must be used immediately  after power-up.
  * Could be performed when device is busy */
 int _reset(void) {
@@ -47,19 +30,22 @@ int _read_status(void) {
 	return -1;
 }
 
+/* Code 0x0030. Read one page to buff */
+int _read_page(int pg, char *buff) {
+	memcpy(buff, raw_from_page(pg), DFS_PAGE_SIZE);
+	return 0;
+}
+
 /* Code 0x60. */
 int _block_erase(int block_num) {
-	if (block_num < 0 || block_num >= DFS_BLOCK_COUNT)
-		return -1;
-
 	bstat[block_num].erased = 1;
-	memset(raw_by_page(block_num * DFS_BLOCK_SIZE), DFS_PAGE_SIZE, 1);
+	memset(raw_from_page(block_num * DFS_BLOCK_SIZE), DFS_PAGE_SIZE, 1);
 	return 0;
 }
 
 /* Code 0x80. */
 int _program_page(int pg, char *buf) {
-	int bnum = block_by_page(pg), i;
+	int bnum = block_from_page(pg), i;
 
 	if (!bstat[bnum].erased)
 		fprintf(stderr, "[Warning] Writing to non-erased block\n");

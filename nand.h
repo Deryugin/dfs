@@ -24,17 +24,17 @@ extern struct dfs_block_stat bstat[DFS_BLOCK_COUNT];
 
 /* TODO check ranges */
 
-static inline char *raw_by_page(int pg) { return raw_flash + pg * DFS_PAGE_SIZE; }
-static inline int page_by_raw(char *rw) { return (rw - raw_flash) / DFS_PAGE_SIZE; }
+static inline char *raw_from_page(int pg) { return raw_flash + pg * DFS_PAGE_SIZE; }
+static inline int page_from_raw(char *rw) { return (rw - raw_flash) / DFS_PAGE_SIZE; }
 
-static inline int block_by_page(int pg) { return pg / DFS_BLOCK_SIZE; }
-static inline int page_by_block(int bk) { return bk * DFS_BLOCK_SIZE; }
+static inline int block_from_page(int pg) { return pg / DFS_BLOCK_SIZE; }
+static inline int page_from_block(int bk) { return bk * DFS_BLOCK_SIZE; }
 
-static inline int block_by_raw(char *rw) { return block_by_page(page_by_raw(rw)); }
-static inline char * raw_by_block(int bk) { return raw_by_page(page_by_block(bk)); }
+static inline int block_from_raw(char *rw) { return block_from_page(page_from_raw(rw)); }
+static inline char * raw_from_block(int bk) { return raw_from_page(page_from_block(bk)); }
 
 /* NAND commands are taken from http://www.eng.umd.edu/~blj/CS-590.26/micron-tn2919.pdf */
-extern int _read_page();
+extern int _read_page(int pg, char *buff);
 extern int _read_page_cache_sequential();
 extern int _read_page_cache_sequential_last();
 extern int _read();
