@@ -17,6 +17,8 @@
 
 struct dfs_block_stat {
 	int erased;
+	int read_counter;
+	int write_counter;
 };
 
 extern char raw_flash[DFS_SIZE];

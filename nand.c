@@ -32,6 +32,7 @@ int _read_status(void) {
 
 /* Code 0x0030. Read one page to buff */
 int _read_page(int pg, char *buff) {
+	bstat[block_by_page(pg)].read_counter++;
 	memcpy(buff, raw_from_page(pg), DFS_PAGE_SIZE);
 	return 0;
 }
@@ -39,6 +40,7 @@ int _read_page(int pg, char *buff) {
 /* Code 0x60. */
 int _block_erase(int block_num) {
 	bstat[block_num].erased = 1;
+	bstat[block_num].write_counter++;
 	memset(raw_from_page(block_num * DFS_BLOCK_SIZE), DFS_PAGE_SIZE, 1);
 	return 0;
 }
@@ -50,19 +52,11 @@ int _program_page(int pg, char *buf) {
 	if (!bstat[bnum].erased)
 		fprintf(stderr, "[Warning] Writing to non-erased block\n");
 	
+	bstat[bnum].write_counter++;
+
 	for (i = 0; i < DFS_PAGE_SIZE; i++)
 		raw_flash[i] &= buf[i];
 
-	return 0;
-}
-
-int dfs_init(void) {
-	int i;
-	printf("Initialization...\n");
-
-	for (i = 0; i < DFS_BLOCK_COUNT; i++) {
-		bstat[i].erased = 0;
-	}
 	return 0;
 }
 

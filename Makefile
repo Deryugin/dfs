@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-c
-SRC=main.c nand.c
+SRC=main.c nand.c dfs.c
 OBJ=$(SRC:.c=.o)
 
 all: $(SRC) nand_emu

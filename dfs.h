@@ -11,4 +11,6 @@ struct inode {
 	int len;
 };
 
-
+extern int dfs_write(int fd, void *buff, size_t size);
+extern int dfs_read(int fd, void *buff, size_t size);
+extern int dfs_create(struct inode *parent, struct inode *new_node);
