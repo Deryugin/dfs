@@ -9,13 +9,13 @@
 #include <stdio.h>
 #include <string.h>
 
-#define DFS_PAGE_SIZE 512
+#define DFS_PAGE_SIZE 4
 #define DFS_BLOCK_SIZE 32
 #define DFS_BLOCK_COUNT 8
 
 #define DFS_SIZE (DFS_BLOCK_SIZE * DFS_BLOCK_COUNT / sizeof(char))
 
-struct dfs_block_stat {
+struct dfs_page_stat {
 	int erased;
 	int read_counter;
 	int write_counter;
