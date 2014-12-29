@@ -49,6 +49,7 @@ int dfs_init(void) {
 		strcpy(buff, static_files[i]);
 		for (int j = 0; j < file_len; j++)
 			_program_page(file_pt + j, buff + j * NAND_PAGE_SIZE);
+		file_pt += file_len;
 	}
 }
 
