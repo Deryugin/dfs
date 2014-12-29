@@ -12,12 +12,12 @@
 /* Page is a minimal writable unit, while block is a minimal erasable unit.
  * Pages are being grouped into blocks */
 
-#define DFS_PAGE_SIZE 4
-#define DFS_BLOCK_SIZE 32
-#define DFS_BLOCK_COUNT 8
-#define DFS_PAGE_COUNT (DFS_BLOCK_COUNT * DFS_BLOCK_SIZE)
+#define NAND_PAGE_SIZE 4
+#define NAND_BLOCK_SIZE 32
+#define NAND_BLOCK_COUNT 8
+#define NAND_PAGE_COUNT (NAND_BLOCK_COUNT * NAND_BLOCK_SIZE)
 
-#define DFS_SIZE (DFS_BLOCK_SIZE * DFS_BLOCK_COUNT / sizeof(char))
+#define NAND_SIZE (NAND_BLOCK_SIZE * NAND_BLOCK_COUNT / sizeof(char))
 
 struct nand_page_stat {
 	int read_counter;
@@ -28,18 +28,18 @@ struct nand_block_stat {
 	int erase_counter;
 };
 
-extern char raw_flash[DFS_SIZE];
-extern struct nand_page_stat pstat[DFS_PAGE_COUNT];
-extern struct nand_block_stat bstat[DFS_BLOCK_COUNT];
+extern char raw_flash[NAND_SIZE];
+extern struct nand_page_stat pstat[NAND_PAGE_COUNT];
+extern struct nand_block_stat bstat[NAND_BLOCK_COUNT];
 
 
 /* TODO check ranges */
 
-static inline char *raw_from_page(int pg) { return raw_flash + pg * DFS_PAGE_SIZE; }
-static inline int page_from_raw(char *rw) { return (rw - raw_flash) / DFS_PAGE_SIZE; }
+static inline char *raw_from_page(int pg) { return raw_flash + pg * NAND_PAGE_SIZE; }
+static inline int page_from_raw(char *rw) { return (rw - raw_flash) / NAND_PAGE_SIZE; }
 
-static inline int block_from_page(int pg) { return pg / DFS_BLOCK_SIZE; }
-static inline int page_from_block(int bk) { return bk * DFS_BLOCK_SIZE; }
+static inline int block_from_page(int pg) { return pg / NAND_BLOCK_SIZE; }
+static inline int page_from_block(int bk) { return bk * NAND_BLOCK_SIZE; }
 
 static inline int block_from_raw(char *rw) { return block_from_page(page_from_raw(rw)); }
 static inline char * raw_from_block(int bk) { return raw_from_page(page_from_block(bk)); }
