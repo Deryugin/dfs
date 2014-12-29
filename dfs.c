@@ -9,6 +9,7 @@
 
 static struct dfs_superblock dfs_sb;
 static struct dfs_inode nodes[DFS_MAX_NODES];
+char *static_files[] = {"deadbeef", "cafebabe"};
 
 int dfs_read_superblock(void) {
 	char buf[DFS_BUF_SIZE];
@@ -33,11 +34,12 @@ int dfs_read_inodes(void) {
 		}
 		buf[nodes[i].len * NAND_PAGE_SIZE] = '\0';
 		printf("Inode #%d contains %s\n", nodes[i].num, buf);
+		if (strcmp(buf, static_files[i])) {
+			printf("[Warning] File #%d content differs from the original file!\n", i);
+		}
 	}
 	return 0;
 }
-
-char *static_files[] = {"deadbeef", "cafebabe"};
 
 int dfs_init(void) {
 	int page_pt, file_pt;
@@ -83,9 +85,6 @@ int dfs_mount(void) {
 	printf("Getting inodes\n");
 	dfs_read_inodes();
 
-	/* for (i = 0; i < DFS_BLOCK_COUNT; i++) {
-		bstat[i].erased = 0;
-	} */
 	return 0;
 }
 
