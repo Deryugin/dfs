@@ -42,19 +42,19 @@ int _read_page(int pg, char *buff) {
 int _block_erase(int block_num) {
 	bstat[block_num].erase_counter++;
 	memset(raw_from_page(block_num * NAND_BLOCK_SIZE), NAND_PAGE_SIZE, 1);
+	for (int i = page_from_block(block_num); i < page_from_block(block_num + 1); i++)
+		pstat[i].erased = 1;
 	return 0;
 }
 
 /* Code 0x80. */
 int _program_page(int pg, char *buf) {
-	int bnum = block_from_page(pg), i;
-
-	if (!bstat[bnum].erase_counter)
-		fprintf(stderr, "[Warning] Writing to non-erased block\n");
+	if (!pstat[pg].erased)
+		fprintf(stderr, "[Warning] Writing to non-erased page\n");
 	
 	pstat[pg].write_counter++;
 
-	for (i = 0; i < NAND_PAGE_SIZE; i++)
+	for (int i = 0; i < NAND_PAGE_SIZE; i++)
 		raw_flash[i] &= buf[i];
 
 	return 0;

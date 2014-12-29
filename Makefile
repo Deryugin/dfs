@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-c -std=c99 -lm
+CFLAGS=-c -std=c99 -lm -g
 LDFLAGS=-lm
 SRC=main.c nand.c dfs.c
 OBJ=$(SRC:.c=.o)

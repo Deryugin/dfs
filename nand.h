@@ -17,11 +17,12 @@
 #define NAND_BLOCK_COUNT 8
 #define NAND_PAGE_COUNT (NAND_BLOCK_COUNT * NAND_BLOCK_SIZE)
 
-#define NAND_SIZE (NAND_BLOCK_SIZE * NAND_BLOCK_COUNT / sizeof(char))
+#define NAND_SIZE (NAND_PAGE_SIZE * NAND_BLOCK_SIZE * NAND_BLOCK_COUNT / sizeof(char))
 
 struct nand_page_stat {
 	int read_counter;
 	int write_counter;
+	int erased;
 };
 
 struct nand_block_stat {
@@ -34,6 +35,8 @@ extern struct nand_block_stat bstat[NAND_BLOCK_COUNT];
 
 
 /* TODO check ranges */
+static inline int pos_from_page(int pg) { return pg * NAND_PAGE_SIZE; }
+static inline int page_from_pos(int pos) { return pos / NAND_PAGE_SIZE; }
 
 static inline char *raw_from_page(int pg) { return raw_flash + pg * NAND_PAGE_SIZE; }
 static inline int page_from_raw(char *rw) { return (rw - raw_flash) / NAND_PAGE_SIZE; }
