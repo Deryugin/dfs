@@ -9,20 +9,29 @@
 #include <stdio.h>
 #include <string.h>
 
+/* Page is a minimal writable unit, while block is a minimal erasable unit.
+ * Pages are being grouped into blocks */
+
 #define DFS_PAGE_SIZE 4
 #define DFS_BLOCK_SIZE 32
 #define DFS_BLOCK_COUNT 8
+#define DFS_PAGE_COUNT (DFS_BLOCK_COUNT * DFS_BLOCK_SIZE)
 
 #define DFS_SIZE (DFS_BLOCK_SIZE * DFS_BLOCK_COUNT / sizeof(char))
 
-struct dfs_page_stat {
-	int erased;
+struct nand_page_stat {
 	int read_counter;
 	int write_counter;
 };
 
+struct nand_block_stat {
+	int erase_counter;
+};
+
 extern char raw_flash[DFS_SIZE];
-extern struct dfs_block_stat bstat[DFS_BLOCK_COUNT];
+extern struct nand_page_stat pstat[DFS_PAGE_COUNT];
+extern struct nand_block_stat bstat[DFS_BLOCK_COUNT];
+
 
 /* TODO check ranges */
 

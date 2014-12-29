@@ -12,9 +12,9 @@ int dfs_init(void) {
 	int i;
 	printf("Initialization...\n");
 
-	for (i = 0; i < DFS_BLOCK_COUNT; i++) {
+	/* for (i = 0; i < DFS_BLOCK_COUNT; i++) {
 		bstat[i].erased = 0;
-	}
+	} */
 	return 0;
 }
 

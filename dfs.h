@@ -1,5 +1,7 @@
 /* @author Denis Deryugin
  * @date 26 Dec 2014
+ * 
+ * NAND-based Dumb File System (DFS).
  */
 
 #ifndef _DFS_H_
@@ -14,3 +16,5 @@ struct inode {
 extern int dfs_write(int fd, void *buff, size_t size);
 extern int dfs_read(int fd, void *buff, size_t size);
 extern int dfs_create(struct inode *parent, struct inode *new_node);
+
+#endif
