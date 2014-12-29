@@ -10,7 +10,12 @@
 static struct dfs_superblock dfs_sb;
 
 int dfs_read_superblock(void) {
+	char buf[DFS_BUF_SIZE];
 	
+	for (int i = 0; i < page_from_pos(sizeof(dfs_sb) + NAND_PAGE_SIZE - 1); i++) {
+		_read_page(i, buf);
+		memcpy(((char*) &dfs_sb) + i, buf, NAND_PAGE_SIZE);
+	}
 }
 
 int dfs_read_inodes(void) {
@@ -24,7 +29,7 @@ char *static_files[] = {"deadbeef", "cafebabe"};
 
 int dfs_init(void) {
 	int page_pt, file_pt;
-	char buff[DFS_BUFF_SIZE];
+	char buf[DFS_BUF_SIZE];
 	printf("Writing DFS image...\n");
 
 	for (int i = 0; i < NAND_BLOCK_COUNT; i++)
@@ -33,11 +38,11 @@ int dfs_init(void) {
 	dfs_sb.sb_size = sizeof(dfs_sb);
 	dfs_sb.inode_count = sizeof(static_files) / sizeof(static_files[0]);
 
-	memset(buff, 0, DFS_BUFF_SIZE);
-	memcpy(buff, &dfs_sb, sizeof(dfs_sb));
+	memset(buf, 0, DFS_BUF_SIZE);
+	memcpy(buf, &dfs_sb, sizeof(dfs_sb));
 	page_pt = page_from_pos(sizeof(dfs_sb) + NAND_PAGE_SIZE - 1);
 	for (int i = 0; i < page_pt; i++)
-		_program_page(i, buff + i * NAND_PAGE_SIZE);
+		_program_page(i, buf + i * NAND_PAGE_SIZE);
 	
 	file_pt = page_pt + dfs_sb.inode_count * (page_from_pos(sizeof(struct dfs_inode) + NAND_PAGE_SIZE - 1));
 	for (int i = 0; i < dfs_sb.inode_count; i++) {
@@ -45,10 +50,10 @@ int dfs_init(void) {
 
 		int file_len = page_from_pos(strlen(static_files[i] + NAND_PAGE_SIZE - 1));
 		struct dfs_inode node = { i, file_pt, file_len};
-		memset(buff, 0, DFS_BUFF_SIZE);
-		strcpy(buff, static_files[i]);
+		memset(buf, 0, DFS_BUF_SIZE);
+		strcpy(buf, static_files[i]);
 		for (int j = 0; j < file_len; j++)
-			_program_page(file_pt + j, buff + j * NAND_PAGE_SIZE);
+			_program_page(file_pt + j, buf + j * NAND_PAGE_SIZE);
 		file_pt += file_len;
 	}
 }
@@ -59,7 +64,7 @@ int dfs_mount(void) {
 
 	printf("Reading superblock...\n");
 	dfs_read_superblock();
-
+	printf("\tFile count: %d\n", dfs_sb.inode_count);
 	printf("Getting inodes\n");
 
 	/* for (i = 0; i < DFS_BLOCK_COUNT; i++) {

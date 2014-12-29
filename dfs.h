@@ -7,7 +7,7 @@
 #ifndef _DFS_H_
 #define _DFS_H_
 
-#define DFS_BUFF_SIZE 512
+#define DFS_BUF_SIZE 1024
 
 struct dfs_inode {
 	int num;
