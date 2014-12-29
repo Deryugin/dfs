@@ -112,7 +112,7 @@ int dfs_read(int fd, void *buff, size_t size) {
 	for (int i = 0; i < page_from_pos(size + NAND_PAGE_SIZE -1); i++)
 		_read_page(i + page_from_pos(pos), tmp + i * NAND_PAGE_SIZE);
 	
-	memcpy(buff, tmp + fds[fd].pos, size);
+	memcpy(buff, tmp + (fds[fd].pos % NAND_PAGE_SIZE), size);
 	fds[fd].pos += size;
 
 	return 0;
