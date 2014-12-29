@@ -8,6 +8,7 @@
 #define _DFS_H_
 
 #define DFS_BUF_SIZE 1024
+#define DFS_MAX_NODES 128
 
 struct dfs_inode {
 	int num;

@@ -8,6 +8,7 @@
 #define DFS_VERBOSE
 
 static struct dfs_superblock dfs_sb;
+static struct dfs_inode nodes[DFS_MAX_NODES];
 
 int dfs_read_superblock(void) {
 	char buf[DFS_BUF_SIZE];
@@ -19,9 +20,20 @@ int dfs_read_superblock(void) {
 }
 
 int dfs_read_inodes(void) {
-	
-#ifdef DFS_VERBOSE
-#endif
+	int pg = page_from_pos(sizeof(dfs_sb) + NAND_PAGE_SIZE - 1);
+	char buf[DFS_BUF_SIZE];
+
+	for (int i = 0; i < dfs_sb.inode_count; i++) {
+		for (int j = 0; j < page_from_pos(sizeof(nodes[0]) + NAND_PAGE_SIZE - 1); j++) {
+			_read_page(pg++, buf);
+			memcpy((char*)&nodes[i] + j * NAND_PAGE_SIZE, buf, NAND_PAGE_SIZE);
+		}
+		for (int j = 0; j < nodes[i].len; j++) {
+			_read_page(nodes[i].page_start + j, buf + j * NAND_PAGE_SIZE);
+		}
+		buf[nodes[i].len * NAND_PAGE_SIZE] = '\0';
+		printf("Inode #%d contains %s\n", nodes[i].num, buf);
+	}
 	return 0;
 }
 
@@ -48,13 +60,16 @@ int dfs_init(void) {
 	for (int i = 0; i < dfs_sb.inode_count; i++) {
 		printf("\tAdding file: %s\n", static_files[i]);
 
-		int file_len = page_from_pos(strlen(static_files[i] + NAND_PAGE_SIZE - 1));
+		int file_len = page_from_pos(strlen(static_files[i]) + NAND_PAGE_SIZE - 1);
 		struct dfs_inode node = { i, file_pt, file_len};
+		memset(buf, 0, DFS_BUF_SIZE);
+		memcpy(buf, &node, sizeof(node));
+		for (int j = 0; j < page_from_pos(sizeof(node) + NAND_PAGE_SIZE - 1); j++)
+			_program_page(page_pt++, buf + j * NAND_PAGE_SIZE);
 		memset(buf, 0, DFS_BUF_SIZE);
 		strcpy(buf, static_files[i]);
 		for (int j = 0; j < file_len; j++)
-			_program_page(file_pt + j, buf + j * NAND_PAGE_SIZE);
-		file_pt += file_len;
+			_program_page(file_pt++, buf + j * NAND_PAGE_SIZE);
 	}
 }
 
@@ -66,6 +81,7 @@ int dfs_mount(void) {
 	dfs_read_superblock();
 	printf("\tFile count: %d\n", dfs_sb.inode_count);
 	printf("Getting inodes\n");
+	dfs_read_inodes();
 
 	/* for (i = 0; i < DFS_BLOCK_COUNT; i++) {
 		bstat[i].erased = 0;
