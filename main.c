@@ -37,6 +37,7 @@ int main(int argc, char **argv) {
 		NAND_BLOCK_COUNT * NAND_BLOCK_SIZE * NAND_PAGE_SIZE);
 
 	dfs_init();
+	dfs_mount();
 
 	p_outwear_stat();
 
