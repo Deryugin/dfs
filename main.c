@@ -39,6 +39,16 @@ int main(int argc, char **argv) {
 	dfs_init();
 	dfs_mount();
 
+	printf("Opening file #0\n");
+
+	int fd = dfs_open(0);
+	printf("Reading content byte by byte: ");
+	for (int i = 0; i < 8; i++) {
+		char buff[10];
+		dfs_read(fd, buff,1);
+		printf("%s ", buff);
+	}
+	printf("\n");
 	p_outwear_stat();
 
 	printf("Bye!\n");

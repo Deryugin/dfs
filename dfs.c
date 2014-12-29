@@ -8,7 +8,7 @@
 #define DFS_VERBOSE
 
 static struct dfs_superblock dfs_sb;
-static struct dfs_inode nodes[DFS_MAX_NODES];
+static struct dfs_inode nodes[DFS_INODES_MAX];
 char *static_files[] = {"deadbeef", "cafebabe"};
 
 int dfs_read_superblock(void) {
@@ -88,3 +88,36 @@ int dfs_mount(void) {
 	return 0;
 }
 
+/*---------------------------------*\
+ 	File system Interface		 
+\*---------------------------------*/
+
+struct file_desc fds[DFS_INODES_MAX];
+int fds_cnt = 0;
+int dfs_open(int inode) {
+	fds[fds_cnt].pos = 0;
+	fds[fds_cnt].node = &nodes[inode];
+	return fds_cnt++;
+}
+
+int dfs_write(int fd, void *buff, size_t size) {
+	
+	return 0;
+}
+
+int dfs_read(int fd, void *buff, size_t size) {
+	int pos = fds[fd].pos + pos_from_page(fds[fd].node->page_start);
+	char tmp[DFS_BUF_SIZE];
+	
+	for (int i = 0; i < page_from_pos(size + NAND_PAGE_SIZE -1); i++)
+		_read_page(i + page_from_pos(pos), tmp + i * NAND_PAGE_SIZE);
+	
+	memcpy(buff, tmp + fds[fd].pos, size);
+	fds[fd].pos += size;
+
+	return 0;
+}
+
+int dfs_create(struct dfs_inode *parent, struct dfs_inode *new_node) {
+	return 0;
+}

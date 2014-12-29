@@ -8,7 +8,7 @@
 #define _DFS_H_
 
 #define DFS_BUF_SIZE 1024
-#define DFS_MAX_NODES 128
+#define DFS_INODES_MAX 128
 
 struct dfs_inode {
 	int num;
@@ -24,6 +24,14 @@ struct dfs_superblock {
 extern int dfs_init(void);
 extern int dfs_mount(void);
 extern int dfs_read_superblock(void);
+
+/* File system interface */
+struct file_desc {
+	int pos;
+	struct dfs_inode *node;
+};
+
+extern int dfs_open(int inode);
 extern int dfs_write(int fd, void *buff, size_t size);
 extern int dfs_read(int fd, void *buff, size_t size);
 extern int dfs_create(struct dfs_inode *parent, struct dfs_inode *new_node);
