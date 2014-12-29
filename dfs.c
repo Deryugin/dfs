@@ -14,7 +14,7 @@ int dfs_read_superblock(void) {
 	
 	for (int i = 0; i < page_from_pos(sizeof(dfs_sb) + NAND_PAGE_SIZE - 1); i++) {
 		_read_page(i, buf);
-		memcpy(((char*) &dfs_sb) + i, buf, NAND_PAGE_SIZE);
+		memcpy(((char*) &dfs_sb) + i * NAND_PAGE_SIZE, buf, NAND_PAGE_SIZE);
 	}
 }
 

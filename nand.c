@@ -7,7 +7,7 @@
 #include <string.h>
 #include "nand.h"
 
-char raw_flash[NAND_SIZE];
+unsigned char raw_flash[NAND_SIZE];
 struct nand_page_stat pstat[NAND_PAGE_COUNT];
 struct nand_block_stat bstat[NAND_BLOCK_COUNT];
 
@@ -41,21 +41,22 @@ int _read_page(int pg, char *buff) {
 /* Code 0x60. */
 int _block_erase(int block_num) {
 	bstat[block_num].erase_counter++;
-	memset(raw_from_page(block_num * NAND_BLOCK_SIZE), NAND_PAGE_SIZE, 1);
+	for (unsigned char *i = raw_from_block(block_num); i != raw_from_block(block_num + 1); i++)
+		*i = 0xff;
 	for (int i = page_from_block(block_num); i < page_from_block(block_num + 1); i++)
 		pstat[i].erased = 1;
 	return 0;
 }
 
 /* Code 0x80. */
-int _program_page(int pg, char *buf) {
+int _program_page(int pg, unsigned char *buf) {
 	if (!pstat[pg].erased)
 		fprintf(stderr, "[Warning] Writing to non-erased page\n");
 	
 	pstat[pg].write_counter++;
 
 	for (int i = 0; i < NAND_PAGE_SIZE; i++)
-		raw_flash[i] &= buf[i];
+		raw_flash[i + pos_from_page(pg)] &= buf[i];
 
 	return 0;
 }
