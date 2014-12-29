@@ -35,6 +35,8 @@ extern struct nand_block_stat bstat[NAND_BLOCK_COUNT];
 
 
 /* TODO check ranges */
+static inline int page_capacity(int bytes) { return (bytes + NAND_PAGE_SIZE - 1) / NAND_PAGE_SIZE; }
+
 static inline int pos_from_page(int pg) { return pg * NAND_PAGE_SIZE; }
 static inline int page_from_pos(int pos) { return pos / NAND_PAGE_SIZE; }
 

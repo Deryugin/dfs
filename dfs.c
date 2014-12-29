@@ -14,18 +14,18 @@ char *static_files[] = {"deadbeef", "cafebabe"};
 int dfs_read_superblock(void) {
 	char buf[DFS_BUF_SIZE];
 	
-	for (int i = 0; i < page_from_pos(sizeof(dfs_sb) + NAND_PAGE_SIZE - 1); i++) {
+	for (int i = 0; i < page_capacity(sizeof(dfs_sb)); i++) {
 		_read_page(i, buf);
 		memcpy(((char*) &dfs_sb) + i * NAND_PAGE_SIZE, buf, NAND_PAGE_SIZE);
 	}
 }
 
 int dfs_read_inodes(void) {
-	int pg = page_from_pos(sizeof(dfs_sb) + NAND_PAGE_SIZE - 1);
+	int pg = page_capacity(sizeof(dfs_sb));
 	char buf[DFS_BUF_SIZE];
 
 	for (int i = 0; i < dfs_sb.inode_count; i++) {
-		for (int j = 0; j < page_from_pos(sizeof(nodes[0]) + NAND_PAGE_SIZE - 1); j++) {
+		for (int j = 0; j < page_capacity(sizeof(nodes[0])); j++) {
 			_read_page(pg++, buf);
 			memcpy((char*)&nodes[i] + j * NAND_PAGE_SIZE, buf, NAND_PAGE_SIZE);
 		}
@@ -54,19 +54,19 @@ int dfs_init(void) {
 
 	memset(buf, 0, DFS_BUF_SIZE);
 	memcpy(buf, &dfs_sb, sizeof(dfs_sb));
-	page_pt = page_from_pos(sizeof(dfs_sb) + NAND_PAGE_SIZE - 1);
+	page_pt = page_capacity(sizeof(dfs_sb));
 	for (int i = 0; i < page_pt; i++)
 		_program_page(i, buf + i * NAND_PAGE_SIZE);
 	
-	file_pt = page_pt + dfs_sb.inode_count * (page_from_pos(sizeof(struct dfs_inode) + NAND_PAGE_SIZE - 1));
+	file_pt = page_pt + dfs_sb.inode_count * page_capacity(sizeof(struct dfs_inode));
 	for (int i = 0; i < dfs_sb.inode_count; i++) {
 		printf("\tAdding file: %s\n", static_files[i]);
 
-		int file_len = page_from_pos(strlen(static_files[i]) + NAND_PAGE_SIZE - 1);
+		int file_len = page_capacity(strlen(static_files[i]));
 		struct dfs_inode node = { i, file_pt, file_len};
 		memset(buf, 0, DFS_BUF_SIZE);
 		memcpy(buf, &node, sizeof(node));
-		for (int j = 0; j < page_from_pos(sizeof(node) + NAND_PAGE_SIZE - 1); j++)
+		for (int j = 0; j < page_capacity(sizeof(node)); j++)
 			_program_page(page_pt++, buf + j * NAND_PAGE_SIZE);
 		memset(buf, 0, DFS_BUF_SIZE);
 		strcpy(buf, static_files[i]);
@@ -109,7 +109,7 @@ int dfs_read(int fd, void *buff, size_t size) {
 	int pos = fds[fd].pos + pos_from_page(fds[fd].node->page_start);
 	char tmp[DFS_BUF_SIZE];
 	
-	for (int i = 0; i < page_from_pos(size + NAND_PAGE_SIZE -1); i++)
+	for (int i = 0; i < page_capacity(size); i++)
 		_read_page(i + page_from_pos(pos), tmp + i * NAND_PAGE_SIZE);
 	
 	memcpy(buff, tmp + (fds[fd].pos % NAND_PAGE_SIZE), size);
