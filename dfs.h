@@ -25,32 +25,32 @@ struct dfs_superblock {
 	int max_inode_count;
 };
 
-extern int dfs_init(void);
-extern int dfs_mount(void);
-
-/* Inode interface */
-void read_inode(int n, struct inode);
-void write_inode(int n);
-void delete_inode(int n);
-
-/* Directory interface */
-void link(); /* NIY */
-void unlink(); /* NIY */
-void mkdir(); /* NIY */
-void rmdir(); /* NIY */
-extern int dfs_rename(struct file_desc *fd, const char *name);
-
-/* File interface */
 struct file_desc {
 	int pos;
 	struct inode *node;
 };
 
+extern int dfs_init(void);
+extern int dfs_mount(void);
+
+/* Inode interface */
+void dfs_read_inode(int n, struct inode);
+void dfs_write_inode(int n);
+void dfs_delete_inode(int n);
+
+/* Directory interface */
+void dfs_link(); /* NIY */
+void dfs_unlink(); /* NIY */
+void dfs_mkdir(); /* NIY */
+void dfs_rmdir(); /* NIY */
+extern int dfs_rename(struct file_desc *fd, const char *name);
+
+/* File interface */
 extern struct file_desc *dfs_open(int inode);
 extern int dfs_write(struct file_desc *fd, void *buff, size_t size);
 extern int dfs_read(struct file_desc *fd, void *buff, size_t size);
 extern int dfs_create(struct inode *parent, struct inode *new_node);
-void lseek(); /* NIY */
-void mmap(); /* NIY */
+void dfs_lseek(); /* NIY */
+void dfs_mmap(); /* NIY */
 
 #endif
