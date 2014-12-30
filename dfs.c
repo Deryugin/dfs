@@ -74,18 +74,13 @@ int dfs_read_inodes(void) {
 	char buf[DFS_BUF_SIZE];
 
 	for (int i = 0; i < dfs_sb.inode_count; i++) {
-		for (int j = 0; j < page_capacity(sizeof(nodes[0])); j++) {
-			_read_page(pg++, buf);
-			memcpy((char*)&nodes[i] + j * NAND_PAGE_SIZE, buf, NAND_PAGE_SIZE);
-		}
-		for (int j = 0; j < nodes[i].len; j++) {
-			_read_page(nodes[i].page_start + j, buf + j * NAND_PAGE_SIZE);
-		}
+		dfs_read_raw(pos_from_page(pg), &nodes[i], sizeof(struct dfs_inode));
+		pg += page_capacity(sizeof(struct dfs_inode));
+		dfs_read_raw(pos_from_page(nodes[i].page_start), buf, nodes[i].len * NAND_PAGE_SIZE);
 		buf[nodes[i].len * NAND_PAGE_SIZE] = '\0';
 		printf("Inode #%d contains %s\n", nodes[i].num, buf);
-		if (strcmp(buf, static_files[i])) {
+		if (strcmp(buf, static_files[i]))
 			printf("[Warning] File #%d content differs from the original file!\n", i);
-		}
 	}
 	return 0;
 }
@@ -100,13 +95,9 @@ int dfs_init(void) {
 
 	dfs_sb.sb_size = sizeof(dfs_sb);
 	dfs_sb.inode_count = sizeof(static_files) / sizeof(static_files[0]);
+	dfs_write_raw(0, &dfs_sb, sizeof(dfs_sb));
 
-	memset(buf, 0, DFS_BUF_SIZE);
-	memcpy(buf, &dfs_sb, sizeof(dfs_sb));
 	page_pt = page_capacity(sizeof(dfs_sb));
-	for (int i = 0; i < page_pt; i++)
-		_program_page(i, buf + i * NAND_PAGE_SIZE);
-	
 	file_pt = page_pt + dfs_sb.inode_count * page_capacity(sizeof(struct dfs_inode));
 	for (int i = 0; i < dfs_sb.inode_count; i++) {
 		printf("\tAdding file: %s\n", static_files[i]);
@@ -114,10 +105,10 @@ int dfs_init(void) {
 		int file_len = page_capacity(strlen(static_files[i]));
 		struct dfs_inode node = { i, file_pt, file_len};
 		strcpy(node.name, file_names[i]);
-		memset(buf, 0, DFS_BUF_SIZE);
-		memcpy(buf, &node, sizeof(node));
-		for (int j = 0; j < page_capacity(sizeof(node)); j++)
-			_program_page(page_pt++, buf + j * NAND_PAGE_SIZE);
+
+		dfs_write_raw(pos_from_page(page_pt), &node, sizeof(node));
+		page_pt += page_capacity(sizeof(node));
+
 		memset(buf, 0, DFS_BUF_SIZE);
 		strcpy(buf, static_files[i]);
 		for (int j = 0; j < file_len; j++)
