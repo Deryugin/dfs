@@ -33,7 +33,7 @@ void print_file(int fn) {
 	for (int i = 0; i < 8; i++) {
 		char buff[5]; buff[4] = 0;
 		dfs_read(fd, buff, 1);
-		printf("%1s ", buff);
+		printf("%c ", buff[0]);
 	}
 	printf("\n");
 }
