@@ -34,6 +34,7 @@ static int dfs_write_raw(int pos, const void *buff, size_t size) {
 		
 		for (pos %= NAND_BLOCK_SIZE; pos < NAND_BLOCK_SIZE && size; pos++, size--)
 			bk_buf[pos] = ((const char*)buff)[src++];
+
 		dfs_write_block(bk++, bk_buf);
 		pg = pos = 0;
 	} while (size != 0);
@@ -55,8 +56,12 @@ static int dfs_read_raw(int pos, void *buff, size_t size) {
 	return 0;
 }
 
-int dfs_read_superblock(void) {
+static int dfs_read_superblock(void) {
 	return dfs_read_raw(0, (void *) &dfs_sb, sizeof(dfs_sb));
+}
+
+static int dfs_write_superblock(void) {
+	return dfs_write_raw(0, (void *) &dfs_sb, sizeof(dfs_sb));
 }
 
 static int dfs_read_single_inode(int n) {
@@ -86,10 +91,11 @@ int dfs_init(void) {
 
 	dfs_sb.sb_size = sizeof(dfs_sb);
 	dfs_sb.inode_count = sizeof(static_files) / sizeof(static_files[0]);
-	dfs_write_raw(0, &dfs_sb, sizeof(dfs_sb));
+	dfs_sb.max_inode_count = DFS_INODES_MAX;
+	dfs_write_superblock();
 
 	node_pt = page_capacity(sizeof(dfs_sb));
-	file_pt = node_pt + dfs_sb.inode_count * page_capacity(sizeof(struct dfs_inode));
+	file_pt = node_pt + dfs_sb.max_inode_count * page_capacity(sizeof(struct dfs_inode));
 	for (int i = 0; i < dfs_sb.inode_count; i++) {
 		printf("\tAdding file: %s\n", static_files[i]);
 
