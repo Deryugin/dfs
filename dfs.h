@@ -33,7 +33,14 @@ void read_inode(int n, struct inode);
 void write_inode(int n);
 void delete_inode(int n);
 
-/* File System interface */
+/* Directory interface */
+void link(); /* NIY */
+void unlink(); /* NIY */
+void mkdir(); /* NIY */
+void rmdir(); /* NIY */
+extern int dfs_rename(struct file_desc *fd, const char *name);
+
+/* File interface */
 struct file_desc {
 	int pos;
 	struct inode *node;
@@ -43,6 +50,7 @@ extern struct file_desc *dfs_open(int inode);
 extern int dfs_write(struct file_desc *fd, void *buff, size_t size);
 extern int dfs_read(struct file_desc *fd, void *buff, size_t size);
 extern int dfs_create(struct inode *parent, struct inode *new_node);
-extern int dfs_rename(struct file_desc *fd, const char *name);
+void lseek(); /* NIY */
+void mmap(); /* NIY */
 
 #endif
