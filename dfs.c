@@ -149,10 +149,7 @@ int dfs_read(struct file_desc *fd, void *buff, size_t size) {
 	int pos = fd->pos + pos_from_page(fd->node->page_start);
 	char tmp[DFS_BUF_SIZE];
 	
-	for (int i = 0; i < page_capacity(size); i++)
-		_read_page(i + page_from_pos(pos), tmp + i * NAND_PAGE_SIZE);
-	
-	memcpy(buff, tmp + (fd->pos % NAND_PAGE_SIZE), size);
+	dfs_read_raw(pos, buff, size);
 	fd->pos += size;
 
 	return 0;
