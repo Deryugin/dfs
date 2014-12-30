@@ -62,6 +62,7 @@ int main(int argc, char **argv) {
 	fd = dfs_open(1);
 	print_file(1);
 	dfs_rename(fd, "journal");
+	dfs_open(1);
 	print_file(1);
 
 	p_outwear_stat();

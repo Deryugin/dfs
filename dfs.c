@@ -12,13 +12,61 @@ static struct dfs_inode nodes[DFS_INODES_MAX];
 char *file_names[] = {"config", "log"};
 char *static_files[] = {"deadbeef", "cafebabe"};
 
-int dfs_read_superblock(void) {
-	char buf[DFS_BUF_SIZE];
+static int dfs_read_block(int bk, void *buff) {
+	for (int i = 0; i < NAND_PAGES_PER_BLOCK; i++)
+		_read_page(page_from_block(bk) + i, buff + i * NAND_PAGE_SIZE);
+}
+
+static int dfs_write_block(int bk, void *buff) {
+	for (int i = 0; i < NAND_PAGES_PER_BLOCK; i++)
+		_program_page(page_from_block(bk) + i, buff + i * NAND_PAGE_SIZE);
+}
+
+static int dfs_write_raw(int pos, const void *buff, size_t size) {
+	char bk_buf[NAND_BLOCK_SIZE];
+	int src = 0;
+	int pg = page_from_pos(pos) % NAND_PAGES_PER_BLOCK;
+	int bk = block_from_pos(pos);
+
+	do {
+		dfs_read_block(bk, bk_buf);
+		_block_erase(bk);
+		
+		for (pos %= NAND_BLOCK_SIZE; pos < NAND_BLOCK_SIZE; pos++) {
+			bk_buf[pos] = ((const char*)buff)[src++];
+			if (!--size)
+				break;
+		}
+		dfs_write_block(bk++, bk_buf);
+		pg = pos = 0;
+	} while (size != 0);
 	
-	for (int i = 0; i < page_capacity(sizeof(dfs_sb)); i++) {
-		_read_page(i, buf);
-		memcpy(((char*) &dfs_sb) + i * NAND_PAGE_SIZE, buf, NAND_PAGE_SIZE);
-	}
+	return 0;
+}
+
+static int dfs_read_raw(int pos, void *buff, size_t size) {
+	int dst = 0;
+	int pg = page_from_pos(pos);
+	char pg_buf[NAND_PAGE_SIZE];
+	do {
+		_read_page(pg++, (void *) pg_buf);
+
+		for (pos %= NAND_PAGE_SIZE; pos < NAND_PAGE_SIZE; pos++) {
+			((char *) buff)[dst++] = pg_buf[pos];
+			if (!--size)
+				break;
+		}
+	} while (size != 0);
+
+	return 0;
+}
+
+int dfs_read_superblock(void) {
+	return dfs_read_raw(0, (void *) &dfs_sb, sizeof(dfs_sb));
+}
+
+static int dfs_read_single_inode(int n) {
+	return 0;
 }
 
 int dfs_read_inodes(void) {
@@ -102,38 +150,6 @@ struct file_desc *dfs_open(int inode) {
 	return &fds[fds_cnt++];
 }
 
-static int dfs_read_block(int bk, void *buff) {
-	for (int i = 0; i < NAND_PAGES_PER_BLOCK; i++)
-		_read_page(page_from_block(bk) + i, buff + i * NAND_PAGE_SIZE);
-}
-
-static int dfs_write_block(int bk, void *buff) {
-	for (int i = 0; i < NAND_PAGES_PER_BLOCK; i++)
-		_program_page(page_from_block(bk) + i, buff + i * NAND_PAGE_SIZE);
-}
-
-static int dfs_write_raw(int pos, const char *buff, size_t size) {
-	char bk_buf[NAND_BLOCK_SIZE];
-	int src = 0;
-	int pg = page_from_pos(pos) % NAND_PAGES_PER_BLOCK;
-	int bk = block_from_pos(pos);
-
-	do {
-		dfs_read_block(bk, bk_buf);
-		_block_erase(bk);
-		
-		for (pos %= NAND_BLOCK_SIZE; pos < NAND_BLOCK_SIZE; pos++, src++, size--) {
-			bk_buf[pos] = ((char*)buff)[src];
-			if (!size)
-				break;
-		}
-		dfs_write_block(bk++, bk_buf);
-		pg = pos = 0;
-	} while (size != 0);
-	
-	return 0;
-}
-
 int dfs_write(struct file_desc *fd, void *buff, size_t size) {
 	int pos = pos_from_page(fd->node->page_start) + fd->pos;
 	
@@ -164,6 +180,8 @@ int dfs_rename(struct file_desc *fd, const char *name) {
 	int bk = block_from_pos(node_pos);
 	
 	dfs_write_raw(node_pos + name_offset, name, 1 + strlen(name));
+	
+	dfs_read_raw(node_pos, fd->node, sizeof(struct dfs_inode));
 
 	return 0;
 }
