@@ -86,19 +86,16 @@ int dfs_read_inodes(void) {
 }
 
 int dfs_init(void) {
-	int page_pt, file_pt;
+	int node_pt, file_pt;
 	char buf[DFS_BUF_SIZE];
 	printf("Writing DFS image...\n");
-
-	for (int i = 0; i < NAND_BLOCKS_TOTAL; i++)
-		_block_erase(i);
 
 	dfs_sb.sb_size = sizeof(dfs_sb);
 	dfs_sb.inode_count = sizeof(static_files) / sizeof(static_files[0]);
 	dfs_write_raw(0, &dfs_sb, sizeof(dfs_sb));
 
-	page_pt = page_capacity(sizeof(dfs_sb));
-	file_pt = page_pt + dfs_sb.inode_count * page_capacity(sizeof(struct dfs_inode));
+	node_pt = page_capacity(sizeof(dfs_sb));
+	file_pt = node_pt + dfs_sb.inode_count * page_capacity(sizeof(struct dfs_inode));
 	for (int i = 0; i < dfs_sb.inode_count; i++) {
 		printf("\tAdding file: %s\n", static_files[i]);
 
@@ -106,13 +103,10 @@ int dfs_init(void) {
 		struct dfs_inode node = { i, file_pt, file_len};
 		strcpy(node.name, file_names[i]);
 
-		dfs_write_raw(pos_from_page(page_pt), &node, sizeof(node));
-		page_pt += page_capacity(sizeof(node));
-
-		memset(buf, 0, DFS_BUF_SIZE);
-		strcpy(buf, static_files[i]);
-		for (int j = 0; j < file_len; j++)
-			_program_page(file_pt++, buf + j * NAND_PAGE_SIZE);
+		dfs_write_raw(pos_from_page(node_pt), &node, sizeof(node));
+		node_pt += page_capacity(sizeof(node));
+		dfs_write_raw(pos_from_page(file_pt), static_files[i], 1 + strlen(static_files[i]));
+		file_pt += page_capacity(strlen(static_files[i]) + 1);
 	}
 }
 
