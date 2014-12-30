@@ -111,7 +111,7 @@ static int dfs_write_block(int bk, void *buff) {
 }
 
 int dfs_write(struct file_desc *fd, void *buff, size_t size) {
-	char bk_buf[NAND_PAGE_SIZE];
+	char bk_buf[NAND_BLOCK_SIZE];
 	
 	int src = 0;
 	int pos = pos_from_page(fd->node->page_start) + fd->pos;
@@ -120,11 +120,14 @@ int dfs_write(struct file_desc *fd, void *buff, size_t size) {
 
 	do {
 		dfs_read_block(bk, bk_buf);
-		_block_erase(bk++);
+		_block_erase(bk);
 		
-		for (int i = pos; i < NAND_BLOCK_SIZE; i++, src++)
-			bk_buf[i] = ((char*)buff)[src];
-		dfs_write_block(bk, bk_buf);
+		for (pos %= NAND_BLOCK_SIZE; pos < NAND_BLOCK_SIZE; pos++, src++, size--) {
+			bk_buf[pos] = ((char*)buff)[src];
+			if (!size)
+				break;
+		}
+		dfs_write_block(bk++, bk_buf);
 		pg = pos = 0;
 	} while (size != 0);
 
