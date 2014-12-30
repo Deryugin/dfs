@@ -37,5 +37,6 @@ extern struct file_desc *dfs_open(int inode);
 extern int dfs_write(struct file_desc *fd, void *buff, size_t size);
 extern int dfs_read(struct file_desc *fd, void *buff, size_t size);
 extern int dfs_create(struct dfs_inode *parent, struct dfs_inode *new_node);
+extern int dfs_rename(struct file_desc *fd, const char *name);
 
 #endif

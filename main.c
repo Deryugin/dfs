@@ -59,6 +59,11 @@ int main(int argc, char **argv) {
 
 	print_file(0);
 
+	fd = dfs_open(1);
+	print_file(1);
+	dfs_rename(fd, "journal");
+	print_file(1);
+
 	p_outwear_stat();
 
 	printf("Bye!\n");

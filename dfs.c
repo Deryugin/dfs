@@ -112,11 +112,9 @@ static int dfs_write_block(int bk, void *buff) {
 		_program_page(page_from_block(bk) + i, buff + i * NAND_PAGE_SIZE);
 }
 
-int dfs_write(struct file_desc *fd, void *buff, size_t size) {
+static int dfs_write_raw(int pos, const char *buff, size_t size) {
 	char bk_buf[NAND_BLOCK_SIZE];
-	
 	int src = 0;
-	int pos = pos_from_page(fd->node->page_start) + fd->pos;
 	int pg = page_from_pos(pos) % NAND_PAGES_PER_BLOCK;
 	int bk = block_from_pos(pos);
 
@@ -132,6 +130,14 @@ int dfs_write(struct file_desc *fd, void *buff, size_t size) {
 		dfs_write_block(bk++, bk_buf);
 		pg = pos = 0;
 	} while (size != 0);
+	
+	return 0;
+}
+
+int dfs_write(struct file_desc *fd, void *buff, size_t size) {
+	int pos = pos_from_page(fd->node->page_start) + fd->pos;
+	
+	dfs_write_raw(pos, buff, size);
 
 	fd->pos += size;
 	
@@ -147,6 +153,17 @@ int dfs_read(struct file_desc *fd, void *buff, size_t size) {
 	
 	memcpy(buff, tmp + (fd->pos % NAND_PAGE_SIZE), size);
 	fd->pos += size;
+
+	return 0;
+}
+
+int dfs_rename(struct file_desc *fd, const char *name) {
+	char *bk_buf[NAND_BLOCK_SIZE];
+	int node_pos = sizeof(dfs_sb) + sizeof(struct dfs_inode) * fd->node->num;
+	int name_offset = (void *) fd->node->name - (void *) &(fd->node->num);
+	int bk = block_from_pos(node_pos);
+	
+	dfs_write_raw(node_pos + name_offset, name, 1 + strlen(name));
 
 	return 0;
 }
