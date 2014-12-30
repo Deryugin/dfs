@@ -9,11 +9,13 @@
 
 #define DFS_BUF_SIZE 1024
 #define DFS_INODES_MAX 128
+#define DFS_NAME_MAX_LENGTH 8
 
 struct dfs_inode {
 	int num;
 	int page_start;
 	int len;
+	char name[DFS_NAME_MAX_LENGTH];
 };
 
 struct dfs_superblock {

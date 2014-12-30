@@ -29,6 +29,7 @@ void p_outwear_stat(void) {
 void print_file(int fn) {
 	printf("Opening file #%d\n", fn);
 	struct file_desc *fd = dfs_open(fn);
+	printf("File name: %s\n", fd->node->name);
 	printf("Reading content byte by byte: ");
 	for (int i = 0; i < 8; i++) {
 		char buff[5]; buff[4] = 0;

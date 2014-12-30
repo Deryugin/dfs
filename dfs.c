@@ -9,6 +9,7 @@
 
 static struct dfs_superblock dfs_sb;
 static struct dfs_inode nodes[DFS_INODES_MAX];
+char *file_names[] = {"config", "log"};
 char *static_files[] = {"deadbeef", "cafebabe"};
 
 int dfs_read_superblock(void) {
@@ -64,6 +65,7 @@ int dfs_init(void) {
 
 		int file_len = page_capacity(strlen(static_files[i]));
 		struct dfs_inode node = { i, file_pt, file_len};
+		strcpy(node.name, file_names[i]);
 		memset(buf, 0, DFS_BUF_SIZE);
 		memcpy(buf, &node, sizeof(node));
 		for (int j = 0; j < page_capacity(sizeof(node)); j++)
