@@ -11,10 +11,11 @@
 #define DFS_INODES_MAX 4
 #define DFS_NAME_MAX_LENGTH 8
 
-struct dfs_inode {
+struct inode {
 	int num;
 	int page_start;
 	int len;
+	int prev, next; /* Position of next inode */
 	char name[DFS_NAME_MAX_LENGTH];
 };
 
@@ -27,16 +28,21 @@ struct dfs_superblock {
 extern int dfs_init(void);
 extern int dfs_mount(void);
 
-/* File system interface */
+/* Inode interface */
+void read_inode(int n, struct inode);
+void write_inode(int n);
+void delete_inode(int n);
+
+/* File System interface */
 struct file_desc {
 	int pos;
-	struct dfs_inode *node;
+	struct inode *node;
 };
 
 extern struct file_desc *dfs_open(int inode);
 extern int dfs_write(struct file_desc *fd, void *buff, size_t size);
 extern int dfs_read(struct file_desc *fd, void *buff, size_t size);
-extern int dfs_create(struct dfs_inode *parent, struct dfs_inode *new_node);
+extern int dfs_create(struct inode *parent, struct inode *new_node);
 extern int dfs_rename(struct file_desc *fd, const char *name);
 
 #endif

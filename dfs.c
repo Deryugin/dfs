@@ -8,7 +8,7 @@
 #define DFS_VERBOSE
 
 static struct dfs_superblock dfs_sb;
-static struct dfs_inode nodes[DFS_INODES_MAX];
+static struct inode nodes[DFS_INODES_MAX];
 char *file_names[] = {"config", "log"};
 char *static_files[] = {"deadbeef", "cafebabe"};
 
@@ -73,8 +73,8 @@ int dfs_read_inodes(void) {
 	char buf[DFS_BUF_SIZE];
 
 	for (int i = 0; i < dfs_sb.inode_count; i++) {
-		dfs_read_raw(pos_from_page(pg), &nodes[i], sizeof(struct dfs_inode));
-		pg += page_capacity(sizeof(struct dfs_inode));
+		dfs_read_raw(pos_from_page(pg), &nodes[i], sizeof(struct inode));
+		pg += page_capacity(sizeof(struct inode));
 		dfs_read_raw(pos_from_page(nodes[i].page_start), buf, nodes[i].len * NAND_PAGE_SIZE);
 		buf[nodes[i].len * NAND_PAGE_SIZE] = '\0';
 		printf("Inode #%d contains %s\n", nodes[i].num, buf);
@@ -95,12 +95,12 @@ int dfs_init(void) {
 	dfs_write_superblock();
 
 	node_pt = page_capacity(sizeof(dfs_sb));
-	file_pt = node_pt + dfs_sb.max_inode_count * page_capacity(sizeof(struct dfs_inode));
+	file_pt = node_pt + dfs_sb.max_inode_count * page_capacity(sizeof(struct inode));
 	for (int i = 0; i < dfs_sb.inode_count; i++) {
 		printf("\tAdding file: %s\n", static_files[i]);
 
 		int file_len = page_capacity(strlen(static_files[i]));
-		struct dfs_inode node = { i, file_pt, file_len};
+		struct inode node = { i, file_pt, file_len};
 		strcpy(node.name, file_names[i]);
 
 		dfs_write_raw(pos_from_page(node_pt), &node, sizeof(node));
@@ -157,18 +157,14 @@ int dfs_read(struct file_desc *fd, void *buff, size_t size) {
 
 int dfs_rename(struct file_desc *fd, const char *name) {
 	char *bk_buf[NAND_BLOCK_SIZE];
-	int node_pos = sizeof(dfs_sb) + sizeof(struct dfs_inode) * fd->node->num;
+	int node_pos = sizeof(dfs_sb) + sizeof(struct inode) * fd->node->num;
 	int name_offset = (void *) fd->node->name - (void *) &(fd->node->num);
 	int bk = block_from_pos(node_pos);
 	
 	dfs_write_raw(node_pos + name_offset, name, 1 + strlen(name));
 	
-	dfs_read_raw(node_pos, fd->node, sizeof(struct dfs_inode));
+	dfs_read_raw(node_pos, fd->node, sizeof(struct inode));
 
-	return 0;
-}
-
-int dfs_create(struct dfs_inode *parent, struct dfs_inode *new_node) {
 	return 0;
 }
 
