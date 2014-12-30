@@ -31,9 +31,9 @@ struct file_desc {
 	struct dfs_inode *node;
 };
 
-extern int dfs_open(int inode);
-extern int dfs_write(int fd, void *buff, size_t size);
-extern int dfs_read(int fd, void *buff, size_t size);
+extern struct file_desc *dfs_open(int inode);
+extern int dfs_write(struct file_desc *fd, void *buff, size_t size);
+extern int dfs_read(struct file_desc *fd, void *buff, size_t size);
 extern int dfs_create(struct dfs_inode *parent, struct dfs_inode *new_node);
 
 #endif

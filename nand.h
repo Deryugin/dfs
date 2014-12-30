@@ -13,11 +13,11 @@
  * Pages are being grouped into blocks */
 
 #define NAND_PAGE_SIZE 4
-#define NAND_BLOCK_SIZE 4
-#define NAND_BLOCK_COUNT 4
-#define NAND_PAGE_COUNT (NAND_BLOCK_COUNT * NAND_BLOCK_SIZE)
-
-#define NAND_SIZE (NAND_PAGE_SIZE * NAND_BLOCK_SIZE * NAND_BLOCK_COUNT / sizeof(char))
+#define NAND_PAGES_PER_BLOCK 4
+#define NAND_BLOCK_SIZE (NAND_PAGE_SIZE * NAND_PAGES_PER_BLOCK)
+#define NAND_BLOCKS_TOTAL 4
+#define NAND_PAGES_TOTAL (NAND_BLOCKS_TOTAL * NAND_PAGES_PER_BLOCK)
+#define NAND_SIZE_TOTAL (NAND_BLOCKS_TOTAL * NAND_BLOCK_SIZE / sizeof(char))
 
 struct nand_page_stat {
 	int read_counter;
@@ -29,9 +29,9 @@ struct nand_block_stat {
 	int erase_counter;
 };
 
-extern unsigned char raw_flash[NAND_SIZE];
-extern struct nand_page_stat pstat[NAND_PAGE_COUNT];
-extern struct nand_block_stat bstat[NAND_BLOCK_COUNT];
+extern unsigned char raw_flash[NAND_SIZE_TOTAL];
+extern struct nand_page_stat pstat[NAND_PAGES_TOTAL];
+extern struct nand_block_stat bstat[NAND_BLOCKS_TOTAL];
 
 
 /* TODO check ranges */
@@ -39,12 +39,14 @@ static inline int page_capacity(int bytes) { return (bytes + NAND_PAGE_SIZE - 1)
 
 static inline int pos_from_page(int pg) { return pg * NAND_PAGE_SIZE; }
 static inline int page_from_pos(int pos) { return pos / NAND_PAGE_SIZE; }
+static inline int pos_from_block(int block) { return block * NAND_BLOCK_SIZE; }
+static inline int block_from_pos(int pos) { return pos / NAND_BLOCK_SIZE; }
 
 static inline unsigned char *raw_from_page(int pg) { return raw_flash + pg * NAND_PAGE_SIZE; }
 static inline int page_from_raw(unsigned char *rw) { return (rw - raw_flash) / NAND_PAGE_SIZE; }
 
-static inline int block_from_page(int pg) { return pg / NAND_BLOCK_SIZE; }
-static inline int page_from_block(int bk) { return bk * NAND_BLOCK_SIZE; }
+static inline int block_from_page(int pg) { return pg / NAND_PAGES_PER_BLOCK; }
+static inline int page_from_block(int bk) { return bk * NAND_PAGES_PER_BLOCK; }
 
 static inline int block_from_raw(unsigned char *rw) { return block_from_page(page_from_raw(rw)); }
 static inline unsigned char * raw_from_block(int bk) { return raw_from_page(page_from_block(bk)); }

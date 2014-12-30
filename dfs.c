@@ -46,7 +46,7 @@ int dfs_init(void) {
 	char buf[DFS_BUF_SIZE];
 	printf("Writing DFS image...\n");
 
-	for (int i = 0; i < NAND_BLOCK_COUNT; i++)
+	for (int i = 0; i < NAND_BLOCKS_TOTAL; i++)
 		_block_erase(i);
 
 	dfs_sb.sb_size = sizeof(dfs_sb);
@@ -89,31 +89,43 @@ int dfs_mount(void) {
 }
 
 /*---------------------------------*\
- 	File system Interface		 
+ 	File System Interface		 
 \*---------------------------------*/
 
 struct file_desc fds[DFS_INODES_MAX];
 int fds_cnt = 0;
-int dfs_open(int inode) {
+struct file_desc *dfs_open(int inode) {
 	fds[fds_cnt].pos = 0;
 	fds[fds_cnt].node = &nodes[inode];
-	return fds_cnt++;
+	return &fds[fds_cnt++];
 }
 
-int dfs_write(int fd, void *buff, size_t size) {
+int dfs_write(struct file_desc *fd, void *buff, size_t size) {
+	char bk_buf[NAND_BLOCK_SIZE];
+	
+	int pos = pos_from_page(fd->node->page_start) + fd->pos;
+	int pg = page_from_pos(pos), bk = block_from_pos(pos);
+
+	for (int i = pos; i < pos + size; i++) {
+		if (i % NAND_BLOCK_SIZE == 0) {
+			
+		}
+	}
+
+	fd->pos += size;
 	
 	return 0;
 }
 
-int dfs_read(int fd, void *buff, size_t size) {
-	int pos = fds[fd].pos + pos_from_page(fds[fd].node->page_start);
+int dfs_read(struct file_desc *fd, void *buff, size_t size) {
+	int pos = fd->pos + pos_from_page(fd->node->page_start);
 	char tmp[DFS_BUF_SIZE];
 	
 	for (int i = 0; i < page_capacity(size); i++)
 		_read_page(i + page_from_pos(pos), tmp + i * NAND_PAGE_SIZE);
 	
-	memcpy(buff, tmp + (fds[fd].pos % NAND_PAGE_SIZE), size);
-	fds[fd].pos += size;
+	memcpy(buff, tmp + (fd->pos % NAND_PAGE_SIZE), size);
+	fd->pos += size;
 
 	return 0;
 }
@@ -121,3 +133,4 @@ int dfs_read(int fd, void *buff, size_t size) {
 int dfs_create(struct dfs_inode *parent, struct dfs_inode *new_node) {
 	return 0;
 }
+

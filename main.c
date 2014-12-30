@@ -41,11 +41,11 @@ int main(int argc, char **argv) {
 
 	printf("Opening file #0\n");
 
-	int fd = dfs_open(0);
+	struct file_desc *fd = dfs_open(0);
 	printf("Reading content byte by byte: ");
-	for (int i = 0; i < 8; i++) {
-		char buff[10];
-		dfs_read(fd, buff,1);
+	for (int i = 0; i < 2; i++) {
+		char buff[5]; buff[4] = 0;
+		dfs_read(fd, buff, 4);
 		printf("%s ", buff);
 	}
 	printf("\n");

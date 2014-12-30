@@ -7,9 +7,9 @@
 #include <string.h>
 #include "nand.h"
 
-unsigned char raw_flash[NAND_SIZE];
-struct nand_page_stat pstat[NAND_PAGE_COUNT];
-struct nand_block_stat bstat[NAND_BLOCK_COUNT];
+unsigned char raw_flash[NAND_SIZE_TOTAL];
+struct nand_page_stat pstat[NAND_PAGES_TOTAL];
+struct nand_block_stat bstat[NAND_BLOCKS_TOTAL];
 
 /* Code 0xFF. Abort current operation. Must be used immediately  after power-up.
  * Could be performed when device is busy */
