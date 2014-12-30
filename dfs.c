@@ -32,11 +32,8 @@ static int dfs_write_raw(int pos, const void *buff, size_t size) {
 		dfs_read_block(bk, bk_buf);
 		_block_erase(bk);
 		
-		for (pos %= NAND_BLOCK_SIZE; pos < NAND_BLOCK_SIZE; pos++) {
+		for (pos %= NAND_BLOCK_SIZE; pos < NAND_BLOCK_SIZE && size; pos++, size--)
 			bk_buf[pos] = ((const char*)buff)[src++];
-			if (!--size)
-				break;
-		}
 		dfs_write_block(bk++, bk_buf);
 		pg = pos = 0;
 	} while (size != 0);
@@ -51,11 +48,8 @@ static int dfs_read_raw(int pos, void *buff, size_t size) {
 	do {
 		_read_page(pg++, (void *) pg_buf);
 
-		for (pos %= NAND_PAGE_SIZE; pos < NAND_PAGE_SIZE; pos++) {
+		for (pos %= NAND_PAGE_SIZE; pos < NAND_PAGE_SIZE && size; pos++, size--)
 			((char *) buff)[dst++] = pg_buf[pos];
-			if (!--size)
-				break;
-		}
 	} while (size != 0);
 
 	return 0;
