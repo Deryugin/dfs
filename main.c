@@ -13,19 +13,30 @@
 void p_outwear_stat(void) {
 	printf("Cells outwear stats:\n");
 	double avg_write, avg_read, max_writes;
-	for (int i = 0, avg_writes = avg_read = max_writes = 0; i < NAND_PAGE_COUNT; i++) {
+	for (int i = 0, avg_writes = avg_read = max_writes = 0; i < NAND_PAGES_TOTAL; i++) {
 		avg_write += pstat[i].write_counter;
 		avg_read += pstat[i].read_counter;
 		max_writes = fmax(max_writes, pstat[i].write_counter);
 	}
-	avg_write /= NAND_PAGE_COUNT;
-	avg_read /= NAND_PAGE_COUNT;
+	avg_write /= NAND_PAGES_TOTAL;
+	avg_read /= NAND_PAGES_TOTAL;
 
 	printf("\tAverage page reads:  %10.2lf\n", avg_read);
 	printf("\tAverage page writes: %10.2lf\n", avg_write);
 	printf("\tMaximum page writes: %10.2lf\n", max_writes);
 }
 
+void print_file(int fn) {
+	printf("Opening file #%d\n", fn);
+	struct file_desc *fd = dfs_open(fn);
+	printf("Reading content byte by byte: ");
+	for (int i = 0; i < 8; i++) {
+		char buff[5]; buff[4] = 0;
+		dfs_read(fd, buff, 1);
+		printf("%s ", buff);
+	}
+	printf("\n");
+}
 
 int main(int argc, char **argv) {
 	printf("This is NAND-flash memory emulator.\n");
@@ -33,22 +44,20 @@ int main(int argc, char **argv) {
 		"\tBlock size: \t%d pages\n"
 		"\tBlock count: \t%d blocks\n"
 		"\tTotal: \t\t%d bytes\n",
-		NAND_PAGE_SIZE, NAND_BLOCK_SIZE, NAND_BLOCK_COUNT,
-		NAND_BLOCK_COUNT * NAND_BLOCK_SIZE * NAND_PAGE_SIZE);
+		NAND_PAGE_SIZE, NAND_PAGES_PER_BLOCK,
+		NAND_BLOCKS_TOTAL, NAND_SIZE_TOTAL);
 
 	dfs_init();
 	dfs_mount();
 
-	printf("Opening file #0\n");
-
+	
+	print_file(0);
+	
 	struct file_desc *fd = dfs_open(0);
-	printf("Reading content byte by byte: ");
-	for (int i = 0; i < 2; i++) {
-		char buff[5]; buff[4] = 0;
-		dfs_read(fd, buff, 4);
-		printf("%s ", buff);
-	}
-	printf("\n");
+	dfs_write(fd, "lol", 3);
+
+	print_file(0);
+
 	p_outwear_stat();
 
 	printf("Bye!\n");
