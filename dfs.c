@@ -130,6 +130,8 @@ int dfs_mount(void) {
 struct file_desc fds[DFS_INODES_MAX];
 int fds_cnt = 0;
 struct file_desc *dfs_open(int inode) {
+	if (inode >= dfs_sb.inode_count) 
+		return NULL;
 	fds[fds_cnt].pos = 0;
 	fds[fds_cnt].node = &nodes[inode];
 	return &fds[fds_cnt++];
