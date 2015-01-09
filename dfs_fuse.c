@@ -27,13 +27,13 @@ int dfs_fuse_getattr (const char * path, struct stat *buf) {
 	memset(buf, 0, sizeof(struct stat));
 	
 	if (strcmp(path, "/") == 0) {
-		buf->st_mode = S_IFDIR | 0777;
+		buf->st_mode = S_IFDIR | 0644;
 		buf->st_nlink = 2;
 		return 0;
 	} else {
 		struct file_desc *fd = fd_from_path(path + 1);
 		if (fd && strcmp(path + 1, fd->node->name) == 0) {
-			buf->st_mode = S_IFREG | 0777;
+			buf->st_mode = S_IFREG | 0666;
 			buf->st_nlink = 1;
 			buf->st_size = 8;
 			return 0;
@@ -52,7 +52,6 @@ int dfs_fuse_read (const char *path, char *buf, size_t size,
 			off_t offset, struct fuse_file_info *fi) {
 	
 	size_t len;
-	(void) fi;
 	struct file_desc *fd = fd_from_path(path + 1);
 	fd->pos = offset;
 	len = strlen(st);
