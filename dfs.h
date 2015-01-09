@@ -9,13 +9,6 @@
 
 #define DFS_FUSE
 #ifdef DFS_FUSE
-#include <time.h>
-/* WTF?! */
-struct timespec {
-	__time_t tv_sec;
-	__syscall_slong_t tv_nsec;
-};
-
 #define FUSE_USE_VERSION 26 
 #include <fuse/fuse.h>
 extern struct fuse_operations dfs_fuse_oper;

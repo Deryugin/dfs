@@ -2,32 +2,40 @@
 
 #ifdef DFS_FUSE
 /* FUSE: Filesystem in Userspace */
-
+#include <fuse.h>
 #include <stdio.h>
 #include <fcntl.h>
+#include <string.h>
+#include <errno.h>
 
 int dfs_fuse_getattr (const char * path, struct stat *buf) {
 	printf("dfs_fuse_getattr\n");
-
-	buf->st_mode = S_IFDIR | 0755;
-	buf->st_nlink = 2;
+	
+	if (strcmp(path, "/") == 0) {
+		buf->st_mode = S_IFDIR | 0755;
+		buf->st_nlink = 2;
+	} else
+		return -ENOENT;
 	return 0;
 }
+
 int dfs_fuse_open (const char *path, struct fuse_file_info *fi) {
 	printf("dfs_fuse_open\n");
 	return 0;
 }
+
 int dfs_fuse_read (const char *path, char *buf, size_t suze,
 			off_t offset, struct fuse_file_info *fi) {
 	printf("dfs_fuse_read\n");
 	return 0;
 }
+
 int dfs_fuse_readdir (const char *path, void *buf, fuse_fill_dir_t filler,
 				off_t offset, struct fuse_file_info *fi) {
 	printf("dfs_fuse_readdir\n");
 	filler(buf, ".", NULL, 0);
 	filler(buf, "..", NULL, 0);
-	
+	filler(buf, "lol", NULL, 0);
 	return 0;
 }
 
