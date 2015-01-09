@@ -7,9 +7,25 @@
 #ifndef _DFS_H_
 #define _DFS_H_
 
+#define DFS_FUSE
+#ifdef DFS_FUSE
+#include <time.h>
+/* WTF?! */
+struct timespec {
+	__time_t tv_sec;
+	__syscall_slong_t tv_nsec;
+};
+
+#define FUSE_USE_VERSION 26 
+#include <fuse/fuse.h>
+extern struct fuse_operations dfs_fuse_oper;
+#endif
+
 #define DFS_BUF_SIZE 1024
 #define DFS_INODES_MAX 4
 #define DFS_NAME_MAX_LENGTH 8
+
+#include <stdlib.h>
 
 struct inode {
 	int num;
