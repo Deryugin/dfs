@@ -40,10 +40,6 @@ void print_file(int fn) {
 }
 
 int main(int argc, char **argv) {
-#ifdef DFS_FUSE
-	printf("Mounting NAND-flash memory emulator\n");
-	return fuse_main(argc, argv, &dfs_fuse_oper, NULL);
-#else
 	printf("This is NAND-flash memory emulator.\n");
 	printf(	"\tPage size: \t%d bytes\n"
 		"\tBlock size: \t%d pages\n"
@@ -55,7 +51,16 @@ int main(int argc, char **argv) {
 	dfs_init();
 	dfs_mount();
 
-	
+	for (int i = 0; i < DFS_INODES_MAX; i++) {
+		struct file_desc *fd = dfs_open(i);
+		if (!fd)
+			break;
+		print_file(i);
+	}
+
+#ifdef DFS_FUSE
+	return fuse_main(argc, argv, &dfs_fuse_oper, NULL);
+#endif	
 	print_file(0);
 	
 	struct file_desc *fd = dfs_open(0);
@@ -73,5 +78,4 @@ int main(int argc, char **argv) {
 
 	printf("Bye!\n");
 	return 0;
-#endif
 }

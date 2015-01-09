@@ -8,6 +8,7 @@
 #define _DFS_H_
 
 #define DFS_FUSE
+
 #ifdef DFS_FUSE
 #define FUSE_USE_VERSION 26 
 #include <fuse/fuse.h>
@@ -59,7 +60,7 @@ extern struct file_desc *dfs_open(int inode);
 extern int dfs_write(struct file_desc *fd, void *buff, size_t size);
 extern int dfs_read(struct file_desc *fd, void *buff, size_t size);
 extern int dfs_create(struct inode *parent, struct inode *new_node);
-void dfs_lseek(); /* NIY */
-void dfs_mmap(); /* NIY */
+extern void dfs_lseek(); /* NIY */
+extern void dfs_mmap(); /* NIY */
 
 #endif
