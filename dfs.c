@@ -134,6 +134,7 @@ struct file_desc *dfs_open(int inode) {
 		return NULL;
 	fds[fds_cnt].pos = 0;
 	fds[fds_cnt].node = &nodes[inode];
+	fds[fds_cnt].len = nodes[inode].len * NAND_PAGE_SIZE;
 	return &fds[fds_cnt++];
 }
 

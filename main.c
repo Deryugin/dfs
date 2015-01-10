@@ -57,7 +57,6 @@ int main(int argc, char **argv) {
 			break;
 		print_file(i);
 	}
-
 #ifdef DFS_FUSE
 	return fuse_main(argc, argv, &dfs_fuse_oper, NULL);
 #endif	

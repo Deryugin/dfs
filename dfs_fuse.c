@@ -66,7 +66,7 @@ int dfs_fuse_readdir (const char *path, void *buf, fuse_fill_dir_t filler,
 				off_t offset, struct fuse_file_info *fi) {
 	filler(buf, ".", NULL, 0);
 	filler(buf, "..", NULL, 0);
-	
+
 	for (int i = 0; i < DFS_INODES_MAX; i++) {
 		struct file_desc *fd = dfs_open(i);
 		if (!fd)

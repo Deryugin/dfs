@@ -37,6 +37,7 @@ struct dfs_superblock {
 
 struct file_desc {
 	int pos;
+	size_t len;
 	struct inode *node;
 };
 
