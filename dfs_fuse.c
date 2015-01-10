@@ -1,7 +1,6 @@
+/* FUSE: Filesystem in Userspace */
 #include "dfs.h"
 
-#ifdef DFS_FUSE
-/* FUSE: Filesystem in Userspace */
 #include <fuse.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -10,6 +9,7 @@
 #include <sys/types.h>
 #include <string.h>
 #include <errno.h>
+
 
 static struct file_desc* fd_from_path(const char *path) {
 	for (int i = 0; i < DFS_INODES_MAX; i++) {
@@ -31,15 +31,14 @@ int dfs_fuse_getattr (const char * path, struct stat *buf) {
 		buf->st_nlink = 2;
 		return 0;
 	} else {
-		struct file_desc *fd = fd_from_path(path + 1);
-		if (fd && strcmp(path + 1, fd->node->name) == 0) {
+		if (fd_from_path(path + 1)) {
 			buf->st_mode = S_IFREG | 0666;
 			buf->st_nlink = 1;
 			buf->st_size = 8;
 			return 0;
 		}
 	}
-	
+	return 0;
 	return -ENOENT;
 }
 
@@ -47,14 +46,12 @@ int dfs_fuse_open (const char *path, struct fuse_file_info *fi) {
 	return 0;
 }
 
-char st[] = "Hello!QWEQWEQWEQWE";
 int dfs_fuse_read (const char *path, char *buf, size_t size,
 			off_t offset, struct fuse_file_info *fi) {
-	
-	size_t len;
+	return 0;
 	struct file_desc *fd = fd_from_path(path + 1);
 	fd->pos = offset;
-	len = strlen(st);
+	size_t len = fd->len;
 	if (offset < len) {
 		if (offset + size > len)
 			size = len - offset;
@@ -80,10 +77,19 @@ int dfs_fuse_readdir (const char *path, void *buf, fuse_fill_dir_t filler,
 	return 0;
 }
 
-/* NIY */
 int dfs_fuse_write(const char *path, const char *buf, size_t size,
 			off_t offset, struct fuse_file_info *fi) {
 	return 0;
+	struct file_desc *fd = fd_from_path(path + 1);
+	fd->pos = offset;
+	size_t len = fd->len;
+	if (offset < len) {
+		if (offset + size > len)
+			size -= len - offset;
+		dfs_write(fd, (void *)buf, size);
+	} else
+		size = 0;
+	return size;
 }
 
 struct fuse_operations dfs_fuse_oper = {
@@ -94,4 +100,3 @@ struct fuse_operations dfs_fuse_oper = {
 	.write		= dfs_fuse_write
 };
 
-#endif
