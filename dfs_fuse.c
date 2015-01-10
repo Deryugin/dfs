@@ -38,7 +38,7 @@ int dfs_fuse_getattr (const char * path, struct stat *buf) {
 			return 0;
 		}
 	}
-	return 0;
+	
 	return -ENOENT;
 }
 
