@@ -47,7 +47,6 @@ int dfs_fuse_open (const char *path, struct fuse_file_info *fi) {
 
 int dfs_fuse_read (const char *path, char *buf, size_t size,
 			off_t offset, struct fuse_file_info *fi) {
-	return 0;
 	struct file_desc *fd = fd_from_path(path + 1);
 	fd->pos = offset;
 	size_t len = fd->len;
@@ -77,7 +76,6 @@ int dfs_fuse_readdir (const char *path, void *buf, fuse_fill_dir_t filler,
 
 int dfs_fuse_write(const char *path, const char *buf, size_t size,
 			off_t offset, struct fuse_file_info *fi) {
-	return 0;
 	struct file_desc *fd = fd_from_path(path + 1);
 	fd->pos = offset;
 	size_t len = fd->len;
@@ -95,6 +93,6 @@ struct fuse_operations dfs_fuse_oper = {
 	.readdir	= dfs_fuse_readdir,
 	.open		= dfs_fuse_open,
 	.read		= dfs_fuse_read,
-	//.write		= dfs_fuse_write
+	.write		= dfs_fuse_write
 };
 
