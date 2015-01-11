@@ -39,8 +39,31 @@ void print_file(int fn) {
 	printf("\n");
 }
 
+void print_usage(void) {
+	printf( "Flags:\n"
+		"\t-h -- print this text\n"
+		"\t-f path-to-mount-point -- mount with FUSE\n"
+		"\t-t -- run some tests (default action)\n");
+}
+
+enum {MOUNT_FUSE, RUN_TESTS, PRINT_HELP} act = RUN_TESTS;
 int main(int argc, char **argv) {
 	printf("This is NAND-flash memory emulator.\n");
+	int opt;
+	while ((opt = getopt(argc, argv, "hf:t")) != -1) {
+		switch (opt) {
+		case 'h':
+			print_usage();
+			return 0;
+		case 'f':
+			act = MOUNT_FUSE;
+			break;
+		case 't':
+			act = RUN_TESTS;
+			break;
+		}
+	}
+
 	printf(	"\tPage size: \t%d bytes\n"
 		"\tBlock size: \t%d pages\n"
 		"\tBlock count: \t%d blocks\n"
@@ -57,24 +80,33 @@ int main(int argc, char **argv) {
 			break;
 		print_file(i);
 	}
+
+	switch (act) {
+	case MOUNT_FUSE:
 #ifdef DFS_FUSE
-	return fuse_main(argc, argv, &dfs_fuse_oper, NULL);
-#endif	
-	print_file(0);
-	
-	struct file_desc *fd = dfs_open(0);
-	dfs_write(fd, "lol", 3);
+		return fuse_main(argc - 1, argv + 1, &dfs_fuse_oper, NULL);
+#else
+		printf(	"FUSE is not supported,"
+			"check configuration and rebuild!\n");
+#endif
+		break;
+	case RUN_TESTS:
+		print_file(0);
+		
+		struct file_desc *fd = dfs_open(0);
+		dfs_write(fd, "lol", 3);
 
-	print_file(0);
+		print_file(0);
 
-	fd = dfs_open(1);
-	print_file(1);
-	dfs_rename(fd, "journal");
-	dfs_open(1);
-	print_file(1);
+		fd = dfs_open(1);
+		print_file(1);
+		dfs_rename(fd, "journal");
+		dfs_open(1);
+		print_file(1);
 
-	p_outwear_stat();
-
+		p_outwear_stat();
+		break;
+	}
 	printf("Bye!\n");
 	return 0;
 }
