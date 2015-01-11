@@ -92,10 +92,11 @@ int main(int argc, char **argv) {
 		break;
 	case RUN_TESTS:
 		print_file(0);
-		
-		struct file_desc *fd = dfs_open(0);
-		dfs_write(fd, "lol", 3);
-
+		struct file_desc *fd;
+		for (int i = 0; i < DFS_INODES_MAX; i++) {
+			fd = dfs_open(i);
+			if (fd) dfs_write(fd, "lol", 3);
+		}
 		print_file(0);
 
 		fd = dfs_open(1);
