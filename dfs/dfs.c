@@ -10,7 +10,7 @@
 static struct dfs_superblock dfs_sb;
 static struct inode nodes[DFS_INODES_MAX];
 char *file_names[] = {"config", "log"};
-char *static_files[] = {"deadbeef", "cafebabe"};
+char *static_files[] = {"deadbeef", "cafebabeasd"};
 
 static int dfs_read_block(int bk, void *buff) {
 	for (int i = 0; i < NAND_PAGES_PER_BLOCK; i++)
