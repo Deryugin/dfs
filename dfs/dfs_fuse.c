@@ -14,9 +14,7 @@
 static struct file_desc* fd_from_path(const char *path) {
 	for (int i = 0; i < DFS_INODES_MAX; i++) {
 		struct file_desc *fd = dfs_open(i);
-		if (!fd)
-			break;
-		if (strcmp(path, fd->node->name) == 0)
+		if (fd && strcmp(path, fd->node->name) == 0)
 			return fd;
 	}
 
@@ -31,10 +29,11 @@ int dfs_fuse_getattr (const char * path, struct stat *buf) {
 		buf->st_nlink = 2;
 		return 0;
 	} else {
-		if (fd_from_path(path + 1)) {
+		struct file_desc *fd;
+		if (fd = fd_from_path(path + 1)) {
 			buf->st_mode = S_IFREG | 0666;
 			buf->st_nlink = 1;
-			buf->st_size = 8;
+			buf->st_size = fd->len;
 			return 0;
 		}
 	}
@@ -69,9 +68,8 @@ int dfs_fuse_readdir (const char *path, void *buf, fuse_fill_dir_t filler,
 
 	for (int i = 0; i < DFS_INODES_MAX; i++) {
 		struct file_desc *fd = dfs_open(i);
-		if (!fd)
-			break;
-		filler(buf, fd->node->name, NULL, 0);
+		if (fd)
+			filler(buf, fd->node->name, NULL, 0);
 	}
 
 	return 0;
@@ -97,6 +95,6 @@ struct fuse_operations dfs_fuse_oper = {
 	.readdir	= dfs_fuse_readdir,
 	.open		= dfs_fuse_open,
 	.read		= dfs_fuse_read,
-	.write		= dfs_fuse_write
+	//.write		= dfs_fuse_write
 };
 
