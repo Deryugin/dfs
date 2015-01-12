@@ -73,6 +73,7 @@ int dfs_fuse_readdir (const char *path, void *buf, fuse_fill_dir_t filler,
 
 int dfs_fuse_write(const char *path, const char *buf, size_t size,
 			off_t offset, struct fuse_file_info *fi) {
+	return 0;
 	struct file_desc *fd = fd_from_path(path + 1);
 	fd->pos = offset;
 	size_t len = fd->len;
@@ -85,11 +86,37 @@ int dfs_fuse_write(const char *path, const char *buf, size_t size,
 	return size;
 }
 
+/* NIY */
+int dfs_fuse_release(const char *path, struct fuse_file_info *fi) {
+	return 0;
+}
+
+/* NIY */
+int dfs_fuse_flush(const char *path, struct fuse_file_info *fi) {
+	return 0;
+}
+
+/* NIY */
+int dfs_fuse_truncate(const char *path, off_t offset) {
+	return 0;
+}
+
+/* NIY */
+int dfs_fuse_ioctl(const char *path, int cmd, void *arg,
+			struct fuse_file_info *fi,
+			unsigned int flags, void *data) {
+	return 0;
+}
+
 struct fuse_operations dfs_fuse_oper = {
 	.getattr	= dfs_fuse_getattr,
 	.readdir	= dfs_fuse_readdir,
 	.open		= dfs_fuse_open,
 	.read		= dfs_fuse_read,
-	.write		= dfs_fuse_write
+	.write		= dfs_fuse_write,
+	.flush		= dfs_fuse_flush,
+	.release	= dfs_fuse_release,
+	.truncate	= dfs_fuse_truncate,
+	.ioctl		= dfs_fuse_ioctl,
 };
 
