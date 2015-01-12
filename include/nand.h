@@ -52,7 +52,7 @@ static inline int block_from_raw(unsigned char *rw) { return block_from_page(pag
 static inline unsigned char * raw_from_block(int bk) { return raw_from_page(page_from_block(bk)); }
 
 /* NAND commands are taken from http://www.eng.umd.edu/~blj/CS-590.26/micron-tn2919.pdf */
-extern int _read_page(int pg, char *buff);
+extern int _read_page(int pg, char *buf);
 extern int _read_page_cache_sequential();
 extern int _read_page_cache_sequential_last();
 extern int _read();
@@ -60,7 +60,7 @@ extern int _random_data_read();
 extern int _read_id(void);
 extern int _read_status(void);
 
-extern int _program_page(int pg, unsigned char *buff);
+extern int _program_page(int pg, unsigned char *buf);
 extern int _program_page_cache();
 extern int _program();
 

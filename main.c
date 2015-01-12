@@ -32,9 +32,9 @@ void print_file(int fn) {
 	printf("File name: %s\n", fd->node->name);
 	printf("Reading content byte by byte: ");
 	for (int i = 0; i < 8; i++) {
-		char buff[5]; buff[4] = 0;
-		dfs_read(fd, buff, 1);
-		printf("%c ", buff[0]);
+		char buf[5]; buf[4] = 0;
+		dfs_read(fd, buf, 1);
+		printf("%c ", buf[0]);
 	}
 	printf("\n");
 }

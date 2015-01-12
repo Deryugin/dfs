@@ -30,9 +30,7 @@ int dfs_fuse_getattr (const char * path, struct stat *buf) {
 	} else {
 		struct file_desc *fd;
 		if (fd = fd_from_path(path + 1)) {
-			buf->st_mode = S_IFREG | 0666;
-			buf->st_nlink = 1;
-			buf->st_size = fd->len;
+			dfs_stat(fd, buf);
 			return 0;
 		}
 	}

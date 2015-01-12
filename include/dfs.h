@@ -56,9 +56,10 @@ extern int dfs_rename(struct file_desc *fd, const char *name);
 
 /* File interface */
 extern struct file_desc *dfs_open(int inode);
-extern int dfs_write(struct file_desc *fd, void *buff, size_t size);
-extern int dfs_read(struct file_desc *fd, void *buff, size_t size);
+extern int dfs_write(struct file_desc *fd, void *buf, size_t size);
+extern int dfs_read(struct file_desc *fd, void *buf, size_t size);
 extern int dfs_create(struct inode *parent, struct inode *new_node);
+extern int dfs_stat(struct file_desc *fd, struct stat *buf);
 extern void dfs_lseek(); /* NIY */
 extern void dfs_mmap(); /* NIY */
 
