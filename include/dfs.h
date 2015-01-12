@@ -7,10 +7,8 @@
 #ifndef _DFS_H_
 #define _DFS_H_
 
-#define DFS_FUSE
-
-#ifdef DFS_FUSE
 #define FUSE_USE_VERSION 26 
+#ifdef FUSE_USE_VERSION
 #include <fuse/fuse.h>
 extern struct fuse_operations dfs_fuse_oper;
 #endif

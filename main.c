@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
 
 	switch (act) {
 	case MOUNT_FUSE:
-#ifdef DFS_FUSE
+#ifdef FUSE_USE_VERSION
 		return fuse_main(argc - 1, argv + 1, &dfs_fuse_oper, NULL);
 #else
 		printf(	"FUSE is not supported,"
