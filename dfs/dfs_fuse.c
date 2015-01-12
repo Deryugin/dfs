@@ -73,7 +73,6 @@ int dfs_fuse_readdir (const char *path, void *buf, fuse_fill_dir_t filler,
 
 int dfs_fuse_write(const char *path, const char *buf, size_t size,
 			off_t offset, struct fuse_file_info *fi) {
-	return 0;
 	struct file_desc *fd = fd_from_path(path + 1);
 	fd->pos = offset;
 	size_t len = fd->len;
