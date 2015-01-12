@@ -10,7 +10,6 @@
 #include <string.h>
 #include <errno.h>
 
-
 static struct file_desc* fd_from_path(const char *path) {
 	for (int i = 0; i < DFS_INODES_MAX; i++) {
 		struct file_desc *fd = dfs_open(i);
