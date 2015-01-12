@@ -7,7 +7,7 @@ OBJ=$(SRC:.c=.o)
 
 all: $(SRC) nand_emu
 clean:
-	rm $(OBJ); rm nand_emu
+	rm -f $(OBJ) nand_emu
 nand_emu : $(OBJ)
 	$(CC) $(OBJ) -o $@ -lm $(FUSE_FLAGS)
 
